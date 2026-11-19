@@ -1,0 +1,446 @@
+:: StoryTitle
+Dare County: Landfall
+
+
+:: StoryData
+{
+  "ifid": "5B2E7F4C-9A31-4D6B-8E0A-3C1D7F9A2B64",
+  "format": "Harlowe",
+  "format-version": "3.3.9",
+  "start": "Title",
+  "zoom": 1
+}
+
+
+:: Story Stylesheet [stylesheet]
+tw-story {
+  background: #04080a;
+  color: #bff0c9;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 17px;
+}
+tw-passage {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0.6em 1.2em 3em 1.2em;
+  line-height: 1.55;
+}
+tw-link, .enchantment-link {
+  color: #ffb000;
+  text-decoration: none;
+  border-bottom: 1px dashed #ffb000;
+}
+tw-link:hover, .enchantment-link:hover {
+  color: #04080a;
+  background: #ffb000;
+}
+tw-hook[name="hud"] {
+  display: block;
+  background: #0a1a12;
+  border: 1px solid #2e6b46;
+  color: #7dffa8;
+  padding: 0.4em 0.8em;
+  margin-bottom: 1.2em;
+  font-size: 0.85em;
+  letter-spacing: 0.05em;
+}
+tw-hook[name="ai"] {
+  display: block;
+  border-left: 4px solid #3fd0ff;
+  background: #07161c;
+  padding: 0.6em 1em;
+  margin: 0.8em 0;
+}
+tw-hook[name="trad"] {
+  display: block;
+  border-left: 4px solid #ffb000;
+  background: #1c1403;
+  padding: 0.6em 1em;
+  margin: 0.8em 0;
+}
+tw-hook[name="reed"] {
+  display: block;
+  border-left: 4px solid #ff4fd8;
+  background: #1c0618;
+  padding: 0.6em 1em;
+  margin: 0.8em 0;
+  color: #ffc4f3;
+}
+tw-hook[name="alert"] {
+  display: block;
+  border: 1px solid #ff3b3b;
+  background: #1f0505;
+  color: #ff9b9b;
+  padding: 0.6em 1em;
+  margin: 0.8em 0;
+}
+tw-hook[name="msg"] {
+  display: block;
+  border-bottom: 1px solid #1d3a2a;
+  padding: 0.4em 0;
+}
+h1, h2, h3 {
+  color: #7dffa8;
+  letter-spacing: 0.06em;
+}
+
+
+:: Init [startup]
+(set: $hours to 48)
+(set: $trust to 70)
+(set: $cost to 0)
+(set: $risk to 60)
+(set: $plan to "")
+(set: $late to false)
+(set: $priority to "")
+(set: $fate to (either: "hit", "miss"))
+(set: $askedRao to false)
+(set: $askedHale to false)
+(set: $readMsgs to false)
+(set: $sawReed to false)
+(set: $reedMsg to "")
+
+
+:: HUD [header]
+|hud>[T-MINUS: $hours h  |  PUBLIC TRUST: $trust%  |  ECON LOSS (M): $cost  |  RESIDENT RISK: $risk/100]
+
+
+:: Title
+# DARE COUNTY EMERGENCY OPERATIONS
+## HURRICANE DELIA / LATE-SEASON ADVISORY
+
+You are the **Emergency Management Director** of Dare County, North Carolina. Nags Head, Kill Devil Hills, Roanoke Island and the rest of the Outer Banks are your responsibility.
+
+A tropical storm has just been upgraded to a Category 1 hurricane. Two forecast systems disagree about whether it will hit you.
+
+Every decision costs something. Nobody will tell you which one is correct.
+
+[[BEGIN SHIFT->Briefing]]
+
+
+:: Briefing
+# EOC BRIEFING // T-48 HOURS
+
+The room is half-lit by wall monitors. Coffee has gone cold. The meeting was scheduled days ago, back when Delia was a tropical storm and a problem for someone else.
+
+Two tracks are on the screen.
+
+|ai>[**AI GUIDANCE (WeatherNext-style ML model)**
+Track: landfall near Nags Head within the 48-hour window.
+Intensity: strengthening to Category 2 before landfall.
+Last four model cycles: same answer each time.
+[ RADAR / TRACK IMAGE PLACEHOLDER: swap in AI track graphic ]]
+
+|trad>[**OFFICIAL FORECAST (traditional dynamical models + NHC cone)**
+Track: offshore, then recurving back out toward the Atlantic.
+Intensity: Category 1, possibly weakening.
+Cone edge: grazes the Outer Banks. Landfall not expected.
+[ RADAR / TRACK IMAGE PLACEHOLDER: swap in NHC cone graphic ]]
+
+Your planners have already given you the number that matters: **a full evacuation of the Outer Banks takes about 30 hours from the moment you give the order**, and almost everyone has to funnel west over **US Highway 64**.
+
+The Mayor is already on the phone with the tourism board.
+
+[[Open the operations console->Ops]]
+
+
+:: Ops
+# OPERATIONS CONSOLE
+
+Hours are ticking. Each person you speak to costs you about two hours.
+
+(if: $askedRao)[~~Dr. Rao, NWS meteorologist~~ (briefed)](else:)[[[Talk to Dr. Priya Rao, NWS meteorologist->Rao]]]
+
+(if: $askedHale)[~~Chief Hale, emergency responders~~ (briefed)](else:)[[[Talk to Chief Marcus Hale, fire and rescue->Hale]]]
+
+(if: $readMsgs)[~~Resident message queue~~ (read)](else:)[[[Read the resident message queue->Residents]]]
+
+(if: $sawReed)[~~Reed's livestream~~ (watched)](else:)[[[Check Reed's livestream->ReedVideo]]]
+
+---
+
+[[I have what I need. Make the call->Decision 1]]
+
+
+:: Rao
+(if: not $askedRao)[(set: $askedRao to true)(set: $hours to it - 2)]
+# DR. PRIYA RAO, NWS METEOROLOGIST
+
+She does not look up from her screen.
+
+"The AI model has been consistent, and I don't dismiss that. Machine-learning guidance has been getting very good at tracks. But consistent isn't the same as independent. Four cycles of one model is one opinion repeated."
+
+"The traditional ensemble has real spread. Some members do hit you. Most don't. And these ML models can smooth over extremes, so I wouldn't lean on its intensity number. At the forecast center they use it as one tool among several, not the final word."
+
+She finally looks at you.
+
+"If you want a probability: I can't give you one I'd defend. Whoever tells you this storm *will* hit, or *won't*, is selling you certainty."
+
+[[Back to the console->Ops]]
+
+
+:: Hale
+(if: not $askedHale)[(set: $askedHale to true)(set: $hours to it - 2)]
+# CHIEF MARCUS HALE, FIRE AND RESCUE
+
+"Here's what I've got. Fourteen buses. Inland shelters can take about twelve hundred people. Beyond that, people are on their own or in cars on 64."
+
+"And 64 is the problem. One way out. If we wait and the wind picks up, Highway 64 closes and every rescue turns into something worse. I'm not telling you what to do. I'm telling you I can't pull people off the beach after the bridges close."
+
+He rubs his eyes.
+
+"Last time we evacuated for nothing, half the county ignored the next one. I remember that too."
+
+[[Back to the console->Ops]]
+
+
+:: Residents
+(set: $readMsgs to true)
+(set: $hours to it - 2)
+# RESIDENT MESSAGE QUEUE
+
+|msg>[**Linda, Kill Devil Hills:** My husband is on dialysis. Do we need to leave? Please tell us something.]
+|msg>[**Marcus, restaurant owner:** Holiday week. If you evacuate for a storm that misses us, you're costing every business on the island a month of income.]
+|msg>[**Anon, Facebook group:** The AI says it's coming straight for us. Why is the county ignoring it?]
+|msg>[**Tourist, rental on Virginia Dare Trail:** Our landlord says we don't have to leave. Is that true??]
+|msg>[**Jo, home health aide:** Half my clients have no car. If you call it, how do they get out?]
+
+Some of these people will trust whatever you say next. Some already don't.
+
+[[Back to the console->Ops]]
+
+
+:: ReedVideo
+(if: not $sawReed)[(set: $sawReed to true)(set: $hours to it - 2)(set: $reedMsg to (either: "A storm is brewing.", "This thing won't get close to us!"))(if: $reedMsg contains "won't")[(set: $trust to it - 5)]]
+# REED // LIVESTREAM
+
+|reed>[**Reed, storm chaser.** Grainy footage. Wind noise. A grin that never quite goes away.
+
+(if: $reedMsg contains "brewing")["...A storm is brewing."]
+(if: $reedMsg contains "won't")["This thing won't get close to us!"]
+
+Forty thousand people are watching.]
+
+(if: $reedMsg contains "won't")[|alert>[Rumor spreading: residents are sharing Reed's clip as proof that evacuation orders are unnecessary. Public trust drops.]]
+(if: $reedMsg contains "brewing")[Reed isn't helping you decide anything. But the comments are already panicking.]
+
+[[Back to the console->Ops]]
+
+
+:: Decision 1
+# DECISION POINT 1 // T-$hours HOURS
+
+The AI says hit. The official forecast says miss. Evacuation clearance takes about 30 hours. The Mayor wants an answer.
+
+(link: "Order a MANDATORY evacuation now. Trust the AI.")[
+  (set: $plan to "early")
+  (set: $cost to it + 20)
+  (set: $trust to it - 8)
+  (set: $risk to 25)
+  (go-to: "Resources")
+]
+
+(link: "Hold. Wait for the next advisory before committing.")[
+  (set: $hours to 36)
+  (go-to: "Update 1")
+]
+
+(link: "Start a STAGED evacuation: barrier-island coast first, everyone else on standby.")[
+  (set: $plan to "staged")
+  (set: $cost to it + 9)
+  (set: $trust to it - 2)
+  (set: $risk to 38)
+  (go-to: "Resources")
+]
+
+
+:: Update 1
+# ADVISORY UPDATE // T-$hours HOURS
+
+|ai>[**AI GUIDANCE:** Still shows landfall near Nags Head. Track nudged slightly north. Confidence unchanged.]
+
+|trad>[**OFFICIAL FORECAST:** Cone shifted west. The Outer Banks now sit inside the cone's edge. Landfall still not expected, but the margin is smaller.]
+
+Dr. Rao sends a one-line message: *"The gap is closing. That's information. It isn't an answer."*
+
+With 36 hours left and a 30-hour clearance time, you have about six hours of slack. Then none.
+
+[[Decision 2->Decision 2]]
+
+
+:: Decision 2
+# DECISION POINT 2 // T-$hours HOURS
+
+(link: "Order a MANDATORY evacuation now.")[
+  (set: $plan to "early")
+  (set: $cost to it + 20)
+  (set: $trust to it - 4)
+  (set: $risk to 28)
+  (go-to: "Resources")
+]
+
+(link: "Order a STAGED evacuation: coastal zones first.")[
+  (set: $plan to "staged")
+  (set: $cost to it + 11)
+  (set: $trust to it - 2)
+  (set: $risk to 42)
+  (go-to: "Resources")
+]
+
+(link: "Wait one more advisory.")[
+  (set: $hours to 24)
+  (set: $plan to "wait")
+  (go-to: "Update 2")
+]
+
+
+:: Update 2
+# ADVISORY UPDATE // T-$hours HOURS
+
+|alert>[Outer bands are visible on radar. Wind forecast to reach evacuation-prohibiting speeds on US-64 in roughly 18 hours.]
+
+|ai>[**AI GUIDANCE:** Landfall near Nags Head. Storm accelerating.]
+
+|trad>[**OFFICIAL FORECAST:** Track shifted again. Hurricane warning issued for the Outer Banks.]
+
+Clearance takes 30 hours. You have 24. Highway 64 closes in about 18.
+
+[[Last call->Last Call]]
+
+
+:: Last Call
+# LAST CALL // T-$hours HOURS
+
+(link: "Order a mandatory evacuation anyway.")[
+  (set: $late to true)
+  (set: $cost to it + 14)
+  (set: $trust to it - 10)
+  (set: $risk to 55)
+  (go-to: "Reveal")
+]
+
+(link: "Hold. Shelter in place and prepare for the storm.")[
+  (set: $late to false)
+  (set: $risk to 70)
+  (go-to: "Reveal")
+]
+
+
+:: Resources
+# RESOURCE ALLOCATION
+
+Fourteen buses. Twelve hundred shelter beds. Not everyone fits.
+
+(if: $plan is "staged")[Staged order: coastal zones go first. That means inland neighborhoods, Roanoke Island and holiday visitors in the second wave will wait.]
+(if: $plan is "early")[Mandatory order: all zones are told to leave at once. The buses can't be everywhere.]
+
+Who gets priority?
+
+(link: "Medical and elderly residents first.")[
+  (set: $priority to "medical")
+  (set: $risk to it - 15)
+  (set: $trust to it + 4)
+  (go-to: "Reveal")
+]
+
+(link: "Tourists and workers without cars first.")[
+  (set: $priority to "carless")
+  (set: $risk to it - 12)
+  (set: $trust to it + 3)
+  (go-to: "Reveal")
+]
+
+(link: "Hold four buses in reserve for late rescues.")[
+  (set: $priority to "reserve")
+  (set: $risk to it - 6)
+  (go-to: "Reveal")
+]
+
+
+:: Reveal
+# THE NIGHT BEFORE
+
+The EOC is quiet. The decisions are made. All that is left is the storm.
+
+|reed>[**Reed, livestream, 3:14 AM:**
+(if: $fate is "hit")["It turned. I told you. IT TURNED. I'm going in."]
+(else:)["Where'd it go? It's just... sliding past. Boring."]]
+
+(if: $fate is "hit")[|alert>[**NHC advisory:** Delia has accelerated and shifted west. Landfall expected near Nags Head.]]
+(else:)[|alert>[**NHC advisory:** Delia has curved northeast. The center is passing well offshore. Tropical-storm-force winds and surge only.]]
+
+(if: $plan is "early")[[[Continue->Ending Early]]]
+(if: $plan is "staged")[[[Continue->Ending Staged]]]
+(if: $plan is "wait")[[[Continue->Ending Wait]]]
+
+
+:: Ending Early
+# ENDING // THE EARLY CALL
+
+(if: $fate is "miss")[Delia slides past offshore. Nags Head gets rain and surf.
+
+Businesses on the island lost a holiday week. Marcus, the restaurant owner, is quoted in the local paper. The next evacuation order will be harder to sell.
+
+You acted on the AI's warning before the official forecast backed it. This time that was wrong, and the cost is real.](else:)[Delia comes ashore near Nags Head. Everyone you ordered out is in shelters or inland motels, watching it on TV.
+
+Damage to property is severe. Hardly anyone is hurt. The call you made on incomplete information looks like the only reasonable call.
+
+You'll never know how much of that was judgment and how much was luck.]
+
+[[Debrief->Debrief]]
+
+
+:: Ending Wait
+# ENDING // THE LONG WAIT
+
+(if: $fate is "hit")[(if: $late)[You gave the order at the last possible moment. Highway 64 is a parking lot when the wind rises. Rescue crews turn back. Some residents are still on the island when the surge arrives.]
+(else:)[You held. Residents shelter in place on a barrier island as a hurricane comes ashore. Highway 64 is already underwater.]
+
+The tracks you waited on to be sure finally agreed. It was too late to use that agreement.
+
+People are hurt. Some are lost. The inquiry will ask why you didn't act on the AI's warning when it was available.](else:)[Delia curves away offshore. You held, and you were right.
+
+Nobody will blame you. Maybe they should look at how close it was. If the storm had hit, no one on the island would have had time to leave.
+
+A correct outcome and a good decision are not the same thing.]
+
+[[Debrief->Debrief]]
+
+
+:: Ending Staged
+# ENDING // THE STAGED PLAN
+
+(if: $fate is "hit")[Delia hits, and it's faster than the official track said. The coastal zones were already clear.
+
+Inland neighborhoods and holiday visitors in the second wave were not. Some are stranded when Highway 64 closes early. The decision to put the beach first meant someone else went second.
+
+Fewer people are hurt than if you had waited. More than if you had called it all at once.](else:)[Delia misses. The coastal zones were cleared for nothing, and inland residents stayed home as planned.
+
+The disruption was smaller than a full order would have been. Some trust is lost. Marcus calls it a half-measure. Dr. Rao calls it hedging, in a tone that isn't entirely a criticism.]
+
+You used both forecasts. You still had to choose who goes first.
+
+[[Debrief->Debrief]]
+
+
+:: Debrief
+# DEBRIEF
+
+**Final state**
+Public trust: $trust%
+Economic loss: $cost million
+Resident risk: $risk / 100
+Storm outcome in this run: (if: $fate is "hit")[landfall](else:)[offshore miss]
+
+---
+
+**The questions this story is built on**
+
+When an AI model contradicts the traditional consensus, who is responsible for acting on it, or for failing to?
+
+- *Operational AI forecasting (Alet et al., 2026):* the case for taking the AI seriously.
+- *ML limitations (Bonavita, 2024):* the case for not treating it as automatically correct.
+- *Evacuation under track uncertainty (Regnier, 2008):* officials sometimes accept false alarms to reduce the chance of failing to protect people.
+- *AI at the National Hurricane Center (Hogsett, 2026):* AI as one tool among several, not a replacement for human forecasters.
+
+(link: "Play again")[(restart:)]
